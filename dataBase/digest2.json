@@ -1,0 +1,43 @@
+[
+    {
+        "text": "指定した表から、条件に合致した行のみを抽出する操作。",
+        "choices": [
+            "射影（projection）",
+            "結合（join）",
+            "〇選択（selection）"
+        ]
+    },
+    {
+        "text": "指定した表から、条件に合致した列のみを抽出する操作。",
+        "choices": [
+            "〇射影（projection）",
+            "結合（join）",
+            "選択（selection）"
+        ]
+    },
+    {
+        "text": "複数の表から、必要な列を抽出し、列の値の関係で結合して、新しい表を作成する操作。",
+        "choices": [
+            "射影（projection）",
+            "〇結合（join）",
+            "選択（selection）"
+        ]
+    },
+    {
+        "text": "C言語やCOBOLなどのプログラミング言語中に、SQLを記述してデータ操作を行う方式を回答群から選びなさい。",
+        "choices": [
+            "〇親言語方式",
+            "独立言語方式",
+            "組込言語方式"
+        ]
+    },
+    {
+        "text": "「分類マスタ」テーブルから<span>すべての項目</span>を抽出するためのSQL分を選びなさい。",
+        "choices": [
+            "SELECT FROM 分類マスタ",
+            "SELECT ALL FROM 分類マスタ",
+            "SELECT ALL FIELD FROM 分類マスタ",
+            "〇SELECT * FROM 分類マスタ"
+        ]
+    }
+]
