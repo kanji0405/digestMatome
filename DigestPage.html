@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-140822774-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-140822774-1');
+    </script>
+    <meta charset="utf-8">
+    <title>読み込み中</title>
+    <link href="stylesheet.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="getJPNSubjectName.js"></script>
+</head>
+
+<body>
+    <div name="fix">
+        <input type="button" class="scoring" value="〇採点をする" onclick="endAnswering();">
+        <input type="button" value="■ダイジェスト一覧へ" onclick="backPage();">
+        <input type="button" value="◀前のダイジェストへ" onclick="previousDigest();">
+        <input type="button" value="▶次のダイジェストへ" onclick="nextDigest();">
+        <div id="letter">
+            <div id="score">得点：（未採点）</div>
+            <div id="subject"></div>
+        </div>
+    </div>
+    <div id="entire">
+        <div id="page"></div>
+    </div>
+
+    <script>
+        location.search.match(/\?subject=(.+)&index=(\d+)/);
+        let isCorrected = false
+        let subject = RegExp.$1;
+        let tag = parseInt(RegExp.$2);
+        let jpnTitle = applyEngSubjectName(subject);
+        let cur = 0;
+        let all = 0;
+        let size;
+
+        $("title").text(`${jpnTitle} 第${tag}回`);
+        const aiueo = "アイウエオカキクケコサシスセソ";
+
+        document.cookie.match(RegExp(`${subject}result${tag}=\\[(\\d+),(\\d+)\\]`))
+        if (RegExp.$1) {
+            cur = RegExp.$1;
+            all = RegExp.$2;
+            $(`#score`).text(`得点：${cur} / ${all}`);
+        }
+
+        let httpObj = new XMLHttpRequest();
+        httpObj.open("get", `${subject}/digestSize.json`, true);
+        httpObj.overrideMimeType('application/json');
+        httpObj.onload = function () {
+            size = eval(this.responseText) || 0;
+            $("#subject").text(`${jpnTitle}　ダイジェスト${tag}/ ${size}`);
+        }
+        httpObj.send();
+
+        function backPage() {
+            location.href = `DigestSelect.html?subject=${subject}`;
+        }
+
+        function previousDigest() {
+            location.href = `DigestPage.html?subject=${subject}&index=${((tag - 2 + size) % (size)) + 1}`;
+        }
+
+        function nextDigest() {
+            location.href = `DigestPage.html?subject=${subject}&index=${(tag) % size + 1}`;
+        }
+
+
+
+        let text = "";
+        let startedTime = new Date();
+        let currentTime = new Date();
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', `${subject}/digest${tag}.json`);
+        xhr.overrideMimeType('application/json');
+        xhr.onload = function () {
+            text = eval(xhr.responseText);
+            let i = 1;
+            let j = 0;
+            let label;
+            let cname;
+            let yname;
+            let instant;
+            let image;
+
+            text.forEach(function (line) {
+                let div = document.createElement("div");
+                div.id = `quiz${i}`;
+                document.getElementById("page").appendChild(div);
+
+                let j = 0;
+                let name = `quiz${i}`;
+                if (line.text) {
+                    let _yText = line.text;
+                    _yText = _yText.replace(/\r?\n/g, '<br>');
+
+                    let cont = document.createElement("p");
+                    cont.id = `context${i}`;
+                    document.getElementById(name).appendChild(cont);
+                    _yText.match(/^(\\o)?(.+)/);
+                    image = RegExp.$2.replace("\\o", "")
+                    $(`#context${i}`).text(`Q${i}. ` + image);
+                    if (!RegExp.$1) { $(`#context${i}`).html($(`#context${i}`).text()) };
+                }
+                if (line.image) {
+                    image = document.createElement("img");
+                    image.src = "images/" + line.image;
+                    document.getElementById(name).appendChild(image);
+                    document.getElementById(name).appendChild(document.createElement("br"));
+                }
+                line.choices.forEach(function (choice) {
+                    if (choice) {
+                        let op = document.createElement("input");
+                        op.type = "radio"
+                        op.name = i;
+                        op.id = `radio${i}_${j}`;
+                        document.getElementById(name).appendChild(op);
+
+                        choice.match(/^(?:〇)?(\\o)?(.+)/);
+                        instant = RegExp.$2;
+
+                        label = document.createElement("label");
+                        label.htmlFor = op.id;
+                        document.getElementById(name).appendChild(label);
+                        label.innerText = `${aiueo[j]}. ${instant}`;
+                        image = RegExp.$1;
+                        if (!image) { label.innerHTML = label.innerText };
+                        document.getElementById(name).appendChild(document.createElement('br'));
+                        j++;
+                    }
+                }, this)
+                let te = document.createElement("p");
+                te.id = `answer${i}`;
+
+                document.getElementById(name).appendChild(te);
+                $(`#${te.id}`).text("　");
+                div = document.createElement("div");
+                div.id = `${name}_div`;
+                document.getElementById(name).appendChild(div);
+                i++
+
+            })
+            startedTime = new Date();
+        };
+        xhr.send(null);
+
+        function endAnswering() {
+            let i = 1;
+            let j = 0;
+            cur = 0;
+            all = 0;
+            let div;
+            let submit;
+            currentTime = (new Date() - startedTime) / 1000;
+            text.forEach(function (line) {
+                j = 0;
+                all++;
+                let correct = false;
+                for (let k = 0; k < line.choices.length; k++) {
+                    let element = document.getElementById(`radio${i}_${k}`);
+                    if (element.checked && line.choices[k].match(/^〇/)) {
+                        correct = true;
+                    }
+                }
+                line.choices.forEach(function (choice) {
+                    if (choice.match(/^〇/)) {
+                        let td = `#answer${i}`
+                        if (correct) {
+                            cur++;
+                            $(td).text("〇正解：" + aiueo[j]);
+                            $(td).css({ "color": "red" });
+                        } else {
+                            $(td).text("×不正解：" + aiueo[j]);
+                            $(td).css({ "color": "blue" });
+                        }
+
+                    };
+                    j++;
+                    $(`#score`).text("得点：" + `${cur} / ${all} [${currentTime}秒]`);
+                })
+                // 残滓
+                if (0) {//!isCorrected) {
+                    div = document.createElement('input');
+                    div.type = "text"
+                    div.class = "review"
+                    document.getElementById(`quiz${i}_div`).appendChild(div);
+                    $("#review").onkeydown = function () {
+                        postReview()
+                    }
+                    submit = document.createElement('input');
+                    submit.type = "submit"
+                    submit.id = `review${i}`
+                    submit.value = "解説を投稿する"
+                    document.getElementById(`quiz${i}_div`).appendChild(submit);
+                    $(`#review${i}`).on('click', function () {
+                        postReview(i);
+                    })
+                }
+                i++;
+            });
+            document.cookie = `${subject}result${tag}=[${cur},${all},${currentTime}]`;
+            isCorrected = true
+        }
+
+        function postReview(i) {
+            console.log(i);
+        }
+    </script>
+</body>
+
+</html>

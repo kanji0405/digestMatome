@@ -1,0 +1,62 @@
+[
+    {
+        "text": "データ更新（変更）を行う文（命令）",
+        "choices": [
+            "INSERT",
+            "CREATE",
+            "〇UPDATE",
+            "DELETE",
+            "FOREIGN KEY",
+            "INDEX KEY",
+            "PRIMARY KEY"
+        ]
+    },
+    {
+        "text": "データの削除を行う文。",
+        "choices": [
+            "INSERT",
+            "CREATE",
+            "UPDATE",
+            "〇DELETE",
+            "FOREIGN KEY",
+            "INDEX KEY",
+            "PRIMARY KEY"
+        ]
+    },
+    {
+        "text": "データの挿入を行う文。",
+        "choices": [
+            "〇INSERT",
+            "CREATE",
+            "UPDATE",
+            "DELETE",
+            "FOREIGN KEY",
+            "INDEX KEY",
+            "PRIMARY KEY"
+        ]
+    },
+    {
+        "text": "CREATE文で外部キーを設定するときに用いる句。",
+        "choices": [
+            "INSERT",
+            "CREATE",
+            "UPDATE",
+            "DELETE",
+            "〇FOREIGN KEY",
+            "INDEX KEY",
+            "PRIMARY KEY"
+        ]
+    },
+    {
+        "text": "CREATE文で主キーを設定するときに使われる句。",
+        "choices": [
+            "INSERT",
+            "CREATE",
+            "UPDATE",
+            "DELETE",
+            "FOREIGN KEY",
+            "INDEX KEY",
+            "〇PRIMARY KEY"
+        ]
+    }
+]

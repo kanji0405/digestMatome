@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-140822774-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA-140822774-1');
+
+        location.search.match(/subject=(.+)/);
+        let subject = RegExp.$1;
+        location.search.match(/result=(.*)\&/);
+        let searched = decodeURIComponent(RegExp.$1);
+        let size = 0;
+    </script>
+
+    <meta charset="utf-8">
+    <title class="aaa"></title>
+    <link href="stylesheet.css" rel="stylesheet" type="text/css">
+    <style>
+        #entire {
+            padding: 100px 10px 200px;
+        }
+
+        .suggest {
+            font-size: 24px;
+        }
+
+        h2 {
+            margin-bottom: 0px;
+        }
+
+        #resultDisplay {
+            border-bottom: 2px dotted teal;
+        }
+
+        .hint {
+            opacity: 0.8;
+            margin-top: 0px;
+            font-size: 18px;
+        }
+
+        .backColor {
+            background-color: orange;
+        }
+    </style>
+    <script type="text/javascript" src="getJPNSubjectName.js"></script>
+</head>
+
+<body>
+    <div name="fix">
+        <div id="search">
+            <script type="text/javascript" src="SearchForm.js"></script>
+        </div>
+
+        <p class="name" id="element"></p>
+
+        <div id="letter">
+            <p id="tokinaoshi" style="margin-top:0; float:left;">読み込み中……</p>
+            <a id="backToSubject" href="index.html" style="float:right; text-align: right;">科目選択へ戻る</a>
+            <p>　</p>
+        </div>
+    </div>
+
+    <div id="entire">
+        <div id="resultDisplay">
+            <h2 style="float:left;">検索終了件数</h2>
+            <h2 id="max" style="float:right;"></h2>
+            <p id="searchHint" style="clear:left;clear:right;margin-top:0;">検索が終わらない場合はご報告ください。表示する順番は検索が早いもの順です。</p>
+        </div>
+
+        <div id="link">
+        </div>
+
+        <script>
+
+            let jpnTitle = applyEngSubjectName(subject);
+            $("title").text(`『${searched}』の検索結果 | ${jpnTitle}`);
+            document.getElementById("element").innerHTML =
+                `<a href="DigestSelect.html?subject=${subject}">${jpnTitle}</a>`;
+            $("#tokinaoshi").text(`『${searched}』の検索結果`)
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', `${subject}/digestSize.json`);
+            xhr.overrideMimeType('application/json');
+            xhr.onload = function () {
+                var size = eval(xhr.responseText);
+                var loaded = 0;
+                var suggest = [];
+                var forLoad = [];
+                let result = [];
+                let text;
+                let kari;
+                let find;
+                $('#max').text(`${loaded} / ${size} 件`);
+                for (let j = 0; j < size; j++) {
+                    suggest[j] = new XMLHttpRequest();
+                    suggest[j].open('GET', `${subject}/digest${j + 1}.json`);
+                    suggest[j].overrideMimeType('application/json');
+                    suggest[j].onload = function () {
+                        find = false;
+                        loaded++;
+                        $('#max').text(`${loaded} / ${size} 件`);
+                        forLoad[j] = document.createElement('p');
+                        forLoad[j].id = j
+                        forLoad[j].className = "suggest"
+                        text = eval(suggest[j].responseText);
+                        text.forEach(function (item) {
+                            kari = [item["text"]].concat(item["choices"]);
+                            kari.forEach(function (_texA) {
+                                _texA = _texA.replace(/<.+>/, "");
+                                if (_texA.includes(searched)) {
+                                    text = _texA.replace(searched, `<span class="backColor">${searched}</span>`)
+                                    forLoad[j].innerHTML += `<p class="hint">${text}</p>`;
+                                    find = true;
+                                }
+                            });
+                        })
+                        if (find) {
+                            forLoad[j].innerHTML = `<a href="DigestPage.html?subject=${subject
+                                }&index=${j + 1}">ダイジェスト${j + 1}</a>` + forLoad[j].innerHTML;
+                            result.push(forLoad[j]);
+                        };
+                        if (loaded == size) {
+                            $('#searchHint').text("検索完了！");
+                            result.sort(function (a, b) { return a.id - b.id });
+                            let motherTag = document.getElementById("link");
+                            result.forEach(function (tag) { motherTag.appendChild(tag) });
+                        };
+                    };
+                    suggest[j].send(null);
+                }
+            }
+            xhr.send(null);
+
+        </script>
+    </div>
+</body>
+
+
+</html>

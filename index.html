@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>2019 ISCダイジェストまとめ</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-140822774-1"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-140822774-1');
+    </script>
+    <script>
+        function pushButton(text) {
+            window.location.href = `DigestSelect.html#subject=${text}`;
+        }
+    </script>
+    <link href="stylesheet.css" rel="stylesheet" type="text/css">
+    <style>
+        .subTitle {
+            margin: 0 15px;
+            padding: 2px 5px;
+            font-size: 26px;
+            border: 1px teal solid;
+            border-left: 12px teal solid;
+            background: #f8fdff;
+            color: #124216;
+        }
+
+        .subTitle::before {
+            content: "★"
+        }
+
+        .subList {
+            margin: 4px 0 15px 8px;
+        }
+
+        .subList>li {
+            padding: 3px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div name="fix">
+        <p class="name">2019 ISCダイジェストまとめ</p>
+        <div id="letter">
+            <p>チェックしたい科目を選択してください。</p>
+        </div>
+    </div>
+    <div id="entire">
+        <p class="subTitle">テクノロジ</p>
+        <ul class="subList">
+            <li><a href="DigestSelect.html?subject=csDigest">コンピュータシステム基礎</a></li>
+            <li><a href="DigestSelect.html?subject=network">ネットワーク</a></li>
+            <li><a href="DigestSelect.html?subject=dataBase">データベース</a></li>
+        </ul>
+        <p class="subTitle">ストラテジ</p>
+        <ul class="subList">
+            <li><a href="DigestSelect.html?subject=infoManage">情報化と経営</a></li>
+        </ul>
+        <p class="subTitle">プログラミング</p>
+        <ul class="subList">
+            <li><a href="DigestSelect.html?subject=algorithm">アルゴリズム（打ち込みなし）</a></li>
+            <li><a href="DigestSelect.html?subject=webDesign">Webデザイン（一部のみ）</a></li>
+        </ul>
+    </div>
+    <footer></footer>
+    <script>
+        $("footer").load("./createFooter.html");
+    </script>
+</body>
+
+</html>

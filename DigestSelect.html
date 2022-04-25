@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-140822774-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-140822774-1');
+
+        let id = 1;
+        let size;
+
+        location.search.match(/\?subject=(.+)/);
+        let subject = RegExp.$1;
+
+        function createSelectBox() {
+            window.location.href = `DigestPage.html?subject=${subject}&index=${id}`;
+        }
+
+        function clearCookie() {
+            if (size) {
+                for (let u = 1; u <= size; u++) { document.cookie = `${subject}result${u}=;`; }
+            }
+            location.reload();
+        }
+    </script>
+    <meta charset="utf-8">
+    <title class="aaa">読み込み中</title>
+    <link href="stylesheet.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="getJPNSubjectName.js"></script>
+</head>
+
+<body>
+    <div name="fix">
+        <div id="search">
+            <script type="text/javascript" src="SearchForm.js"></script>
+        </div>
+
+        <p class="name">読み込み中</p>
+        <div id="letter">
+            <p id="tokinaoshi" style="margin-top:0; float:left;">解きなおすダイジェストを選択してください。</p>
+            <a id="backToSubject" href="index.html" style="float:right; text-align: right;">科目選択へ戻る</a>
+            <p>　</p>
+        </div>
+    </div>
+
+    <div id="entire">
+        <div id="leftMenu">
+            <select name="block" id="dig" size="10">
+            </select>
+            <div id="rightMenu">
+                <p style="text-align:right;">こちらからでもダイジェストは選択できます↓<br></p>
+                <table id="scoreList" align="right">
+                    <tr style="color:white; background-color:teal">
+                        <th>問題</th>
+                        <th>正解数</th>
+                        <th>解答時間</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="selectName">
+                <input type="button" value="問題へ" id="toQuestion" onclick="createSelectBox();">
+                <input type="button" value="cookie削除" onclick="clearCookie();">
+            </div>
+        </div>
+    </div>
+    <footer></footer>
+    <script>
+        let jpnTitle = applyEngSubjectName(subject);
+        $("title").text(`${jpnTitle}まとめ`);
+        $(".name").text(`${jpnTitle}まとめ`);
+
+        const tag = '[name=block]'
+        const table = 'scoreList'
+        let cur = "";
+        $(tag).change(function () { id = $(tag).val() });
+
+        let regexp = new RegExp(`${subject}result(\\d+)=\\[(\\d+),\\s*(\\d+),(\\d+(?:\\.\\d+))]`, 'g');
+        let results = document.cookie.match(regexp);
+        regexp.flags = "";
+
+        let httpObj = new XMLHttpRequest();
+        httpObj.open("get", `${subject}/digestSize.json`, true);
+        httpObj.overrideMimeType('application/json');
+        httpObj.onload = function () {
+            size = eval(this.responseText);
+            $(tag).attr('size', size);
+            for (i = 0; i < size; i++) {
+                let op = document.createElement("option");
+                op.value = i + 1;
+                op.id = `op${i}`;
+                if (i === 0) {
+                    op.selected = true
+                }
+                op.text = `ダイジェスト${op.value}`;
+                document.getElementById("dig").appendChild(op);
+
+                let tr = document.createElement("tr");
+                tr.id = `tr${i}`;
+
+                document.getElementById(table).appendChild(tr);
+
+                let th = document.createElement("th");
+                th.id = `th${i}`;
+                th.value = i;
+                th.className = "DigestSelect";
+
+                document.getElementById(tr.id).appendChild(th);
+                th.innerText = op.text;
+                $(`#${th.id}`).on('click', function () {
+                    for (k = 0; k < size; k++) {
+                        op = document.getElementById(`op${k}`);
+                        if ($(this).val() == k) {
+                            op.selected = true;
+                            id = k + 1;
+                        } else {
+                            op.selected = false;
+                        }
+                    };
+                })
+
+                let td = document.createElement("td");
+                td.id = `td${i}`;
+                document.getElementById(tr.id).appendChild(td);
+
+                let tdd = document.createElement("td");
+                tdd.id = `tdd${i}`;
+                document.getElementById(tr.id).appendChild(tdd);
+
+
+                $(`#${td.id}`).text("記録なし");
+                $(`#${tdd.id}`).text("未測定");
+            }
+            if (results) {
+                for (let q = 0; q < results.length; q++) {
+                    results[q].match(regexp);
+                    let num = parseInt(RegExp.$1) - 1;
+                    if (num == q) {
+                        score = `${RegExp.$2} / ${RegExp.$3}`;
+                        let charisma = RegExp.$4 + " 秒";
+                        $(`#td${num}`).text(score);
+                        let time = RegExp.$4;
+                        $(`#tdd${num}`).text(charisma);
+
+                        let bool = RegExp.$2 == RegExp.$3;
+                    }
+                }
+            }
+
+        }
+        httpObj.send();
+        $("footer").load("./createFooter.html");
+    </script>
+</body>
+
+</html>
